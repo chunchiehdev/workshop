@@ -1,0 +1,196 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "AI Teaching Assistant Generator",
+        "description": "API for generating educational chatbot prompts using OpenAI or Google Gemini models",
+        "version": "1.0.0"
+    },
+    "paths": {
+
+        "/generate": {
+            "post": {
+                "summary": "Generate",
+                "description": "Generate educational chatbot prompts based on provided parameters.\n\nThis endpoint automatically detects whether to use OpenAI or Gemini APIs\nbased on the model name provided.",
+                "operationId": "generate_generate_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PromptRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromptResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ErrorResponse": {
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "title": "Error"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "error"
+                ],
+                "title": "ErrorResponse"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "PromptRequest": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "title": "Role",
+                        "description": "The character or role the AI should play (e.g., 'Math Teacher')"
+                    },
+                    "goal": {
+                        "type": "string",
+                        "title": "Goal",
+                        "description": "Learning objectives for students"
+                    },
+                    "object": {
+                        "type": "string",
+                        "title": "Object",
+                        "description": "Description of target students"
+                    },
+                    "activity": {
+                        "type": "string",
+                        "title": "Activity",
+                        "description": "How the learning activity should be conducted"
+                    },
+                    "format": {
+                        "type": "string",
+                        "title": "Format",
+                        "description": "Desired output format"
+                    },
+                    "responsestyle": {
+                        "type": "string",
+                        "title": "Responsestyle",
+                        "description": "Tone/style for responses"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "description": "AI model to use (e.g., 'gpt-4o' or 'gemini-2.0-flash')",
+                        "default": "gpt-4o"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role",
+                    "goal",
+                    "object",
+                    "activity",
+                    "format",
+                    "responsestyle"
+                ],
+                "title": "PromptRequest"
+            },
+            "PromptResponse": {
+                "properties": {
+                    "reply": {
+                        "type": "string",
+                        "title": "Reply"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "reply"
+                ],
+                "title": "PromptResponse"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

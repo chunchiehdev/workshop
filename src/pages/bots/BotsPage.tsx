@@ -75,7 +75,6 @@ export function BotsPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1">
-              <label htmlFor="search" className="text-sm font-medium block mb-2">搜尋 Bot</label>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input

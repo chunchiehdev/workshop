@@ -1,15 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -117,55 +108,36 @@ export function Header() {
   };
 
   return (
-    <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 sticky top-0">
-      <div className="flex h-16 items-center px-4">
-        <div className="flex items-center gap-2 md:gap-4 flex-1">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="h-4" />
-            <Breadcrumb className="hidden sm:flex">
+    <header className="h-12 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 sticky top-0">
+      <div className="flex h-full items-center px-3">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center">
+            <SidebarTrigger className="size-6" />
+            <Separator orientation="vertical" className="h-3 mx-2" />
+            <Breadcrumb className="hidden sm:flex text-xs">
               {getBreadcrumbs()}
             </Breadcrumb>
           </div>
           
-          <div className="flex-1 flex justify-center md:justify-start ml-0 md:ml-4">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          {/* <div className="flex-1 flex justify-center md:justify-start ml-0 md:ml-4">
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-2 top-[7px] h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="搜尋..."
-                className="w-full pl-8 bg-muted/50"
+                className="w-full pl-7 h-7 text-xs bg-muted/50"
               />
             </div>
-          </div>
+          </div> */}
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">
+        <div className="flex items-center">
+          <Button variant="ghost" size="icon" className="relative size-8">
+            <Bell className="h-4 w-4" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-3.5 h-3.5 text-[10px] flex items-center justify-center">
               3
             </span>
           </Button>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8 border border-border/20">
-                  <AvatarImage src="https://github.com/chunchiehdev.png" alt="使用者" />
-                  <AvatarFallback>教師</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>我的帳號</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>個人資料</DropdownMenuItem>
-              <DropdownMenuItem>帳號設定</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>登出</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </header>
