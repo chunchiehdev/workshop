@@ -67,14 +67,6 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-  font-weight: 600;
-  font-family: 'Noto Sans TC', sans-serif;
-  letter-spacing: -0.02em;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -188,13 +180,27 @@ button:focus-visible {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Poppins', 'Noto Sans TC', system-ui, sans-serif;
+    font-family: 'Averia Serif Libre', 'Noto Serif TC', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Noto Sans TC', 'Poppins', sans-serif;
+    font-family: 'Noto Serif TC', sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
+  }
+
+  /* 增加標題樣式 */
+  h1 {
+    @apply text-3xl md:text-4xl font-bold;
+    line-height: 1.1;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
   }
 
   /* 自定義滾動條樣式 */
