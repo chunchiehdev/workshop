@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, UploadCloud, CheckCircle2 } from "lucide-react";
 import FormSection from "@/components/form/FormSection";
+import Dropzone from "@/components/ui/Dropzone";
 
 interface DataUploadStepProps {
   files: File[];
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onFilesAdded: (files: File[]) => void;
   onPrevious: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;
@@ -18,7 +19,7 @@ interface DataUploadStepProps {
 
 const DataUploadStep = React.memo(({
   files,
-  onFileUpload,
+  onFilesAdded,
   onPrevious,
   onSubmit,
   isSubmitting,
@@ -42,29 +43,10 @@ const DataUploadStep = React.memo(({
       <CardContent className="p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="md:col-span-3">
-            <FormSection className="h-full flex flex-col items-center justify-center py-8 border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 hover:border-primary/70 transition-all cursor-pointer group">
-              <div className="bg-primary/15 p-4 rounded-full inline-flex mx-auto mb-4 group-hover:bg-primary/25 transition-colors">
-                <UploadCloud className="h-10 w-10 text-primary/80 group-hover:text-primary transition-colors" />
-              </div>
-              <p className="text-base font-medium text-primary/90 mb-2">
-                拖放檔案到此處
-              </p>
-              <p className="text-sm text-muted-foreground mb-4">
-                或從您的裝置選擇檔案
-              </p>
-              <Input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                multiple
-                onChange={onFileUpload}
-              />
-              <label htmlFor="file-upload">
-                <Button className="h-10 text-sm px-5" type="button">
-                  選擇檔案
-                </Button>
-              </label>
-            </FormSection>
+            <Dropzone 
+              onFilesAdded={onFilesAdded}
+              className="h-full"
+            />
           </div>
           
           <div className="md:col-span-2">

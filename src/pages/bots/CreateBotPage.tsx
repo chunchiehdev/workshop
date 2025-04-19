@@ -5,6 +5,8 @@ import BasicInfoStep from "@/components/bots/BasicInfoStep";
 import PromptTemplateStep from "@/components/bots/PromptTemplateStep";
 import DataUploadStep from "@/components/bots/DataUploadStep";
 import ResultStep from "@/components/bots/ResultStep";
+import { useGeneratePrompt, useCreateBot } from "@/services/queryHooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 // 步驟定義
 const steps = [
@@ -37,10 +39,16 @@ interface FormData {
   responsestyle: string;
   files: File[];
   generatedPrompt?: string;
+  createdBotId?: number; // 添加字段存儲後端創建的 Bot ID
 }
 
 export function CreateBotPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  // 使用React Query的hooks
+  const generatePromptMutation = useGeneratePrompt();
+  const createBotMutation = useCreateBot();
   
   // 步驟狀態
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -60,38 +68,53 @@ export function CreateBotPage() {
     files: []
   });
   
-  // 加載狀態
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
   // 設置頁面標題
   useEffect(() => {
     document.title = `建立 Bot - ${steps[currentStepIndex].title}`;
   }, [currentStepIndex]);
   
-  // 直接更新表單值的處理函數 - 使用useCallback優化
-  const handleChange = useCallback((field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }, []);
-  
-  // 處理檔案上傳
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const newFiles = Array.from(event.target.files);
-      setFormData(prev => ({
-        ...prev,
-        files: [...prev.files, ...newFiles]
-      }));
-    }
-  }, []);
-  
-  // 導航函數
-  const goToNext = useCallback(() => {
+  // 處理BasicInfoStep表單提交
+  const handleBasicInfoSubmit = useCallback((data: {botName: string; botDescription: string; model: string}) => {
+    setFormData(prev => ({
+      ...prev,
+      botName: data.botName,
+      botDescription: data.botDescription,
+      model: data.model
+    }));
+    // 移至下一步
     if (currentStepIndex < steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentStepIndex]);
   
+  // 處理PromptTemplateStep表單提交
+  const handlePromptSubmit = useCallback((data: {role: string; goal: string; object: string; activity: string; format: string; responsestyle: string}) => {
+    setFormData(prev => ({
+      ...prev,
+      role: data.role,
+      goal: data.goal,
+      object: data.object,
+      activity: data.activity,
+      format: data.format,
+      responsestyle: data.responsestyle
+    }));
+    // 移至下一步
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentStepIndex]);
+  
+  // 處理檔案上傳
+  const handleFilesAdded = useCallback((newFiles: File[]) => {
+    setFormData(prev => ({
+      ...prev,
+      files: [...prev.files, ...newFiles]
+    }));
+  }, []);
+  
+  // 導航函數
   const goToPrevious = useCallback(() => {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
@@ -99,13 +122,13 @@ export function CreateBotPage() {
     }
   }, [currentStepIndex]);
   
-  // 提交表單
+  // 提交表單 - 使用React Query的mutation
   const handleSubmit = useCallback(async () => {
     try {
-      setIsSubmitting(true);
-      
       // 準備API請求數據
-      const requestData = {
+      const promptRequestData = {
+        name: formData.botName,
+        description: formData.botDescription,
         role: formData.role,
         goal: formData.goal,
         object: formData.object,
@@ -115,47 +138,34 @@ export function CreateBotPage() {
         model: formData.model
       };
       
-      // 發送API請求
-      const response = await fetch('http://localhost:5000/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
+      // 使用React Query的mutation
+      const result = await generatePromptMutation.mutateAsync(promptRequestData);
       
-      if (!response.ok) {
-        throw new Error('API請求失敗');
-      }
-      
-      const data = await response.json();
-      
-      // 保存生成的回應
+      // 保存生成的回應和 bot_id
       setFormData(prev => ({
         ...prev,
-        generatedPrompt: data.reply || ""
+        generatedPrompt: result.reply || "",
+        createdBotId: result.bot_id // 保存後端創建的 Bot ID
       }));
       
       // 顯示成功通知
       toast({
-        title: "Bot 建立成功",
-        description: "AI 教學助手已成功生成",
+        title: "Bot 已創建成功",
+        description: "AI 教學助手已成功生成並保存",
       });
       
       // 切換到結果頁
       setCurrentStepIndex(3);
       
     } catch (error) {
-      console.error('提交表單時出錯:', error);
+      console.error('生成提示詞時出錯:', error);
       toast({
         title: "錯誤",
-        description: "建立 Bot 時發生錯誤，請稍後再試",
+        description: "生成提示詞時發生錯誤，請稍後再試",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
-  }, [formData]);
+  }, [formData, generatePromptMutation]);
   
   // 複製到剪貼板函數
   const handleCopyToClipboard = useCallback((text: string) => {
@@ -166,11 +176,19 @@ export function CreateBotPage() {
     });
   }, []);
   
-  // 完成並導航至Bot列表
+  // 完成並導航至Bot列表 - 直接導航，不需要再創建Bot
   const handleFinish = useCallback(() => {
-    // TODO: 保存到資料庫
+    // 使 bots 查詢失效，這樣在導航到列表頁時會重新獲取數據
+    queryClient.invalidateQueries({ queryKey: ['bots'] });
+    
+    // 導航至Bot列表
     navigate('/bots');
-  }, [navigate]);
+    
+    toast({
+      title: "返回 Bot 列表",
+      description: "您的 Bot 已成功創建，可以開始使用了",
+    });
+  }, [navigate, queryClient]);
   
   // 渲染當前步驟內容
   const renderStepContent = () => {
@@ -178,9 +196,12 @@ export function CreateBotPage() {
       case "basic":
         return (
           <BasicInfoStep 
-            formData={formData}
-            onFieldChange={handleChange}
-            onNext={goToNext}
+            defaultValues={{
+              botName: formData.botName,
+              botDescription: formData.botDescription,
+              model: formData.model
+            }}
+            onSubmit={handleBasicInfoSubmit}
             stepIndex={1}
             stepTitle={steps[0].title}
             stepDescription={steps[0].description}
@@ -190,9 +211,15 @@ export function CreateBotPage() {
       case "prompt":
         return (
           <PromptTemplateStep 
-            formData={formData}
-            onFieldChange={handleChange}
-            onNext={goToNext}
+            defaultValues={{
+              role: formData.role,
+              goal: formData.goal,
+              object: formData.object,
+              activity: formData.activity,
+              format: formData.format,
+              responsestyle: formData.responsestyle
+            }}
+            onSubmit={handlePromptSubmit}
             onPrevious={goToPrevious}
             stepIndex={2}
             stepTitle={steps[1].title}
@@ -204,10 +231,10 @@ export function CreateBotPage() {
         return (
           <DataUploadStep 
             files={formData.files}
-            onFileUpload={handleFileUpload}
+            onFilesAdded={handleFilesAdded}
             onPrevious={goToPrevious}
             onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
+            isSubmitting={generatePromptMutation.isPending}
             stepIndex={3}
             stepTitle={steps[2].title}
             stepDescription={steps[2].description}

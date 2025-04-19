@@ -6,21 +6,35 @@
         "version": "1.0.0"
     },
     "paths": {
-
-        "/generate": {
+        "/generate/": {
             "post": {
-                "summary": "Generate",
+                "tags": [
+                    "generate"
+                ],
+                "summary": "Generate Prompt",
                 "description": "Generate educational chatbot prompts based on provided parameters.\n\nThis endpoint automatically detects whether to use OpenAI or Gemini APIs\nbased on the model name provided.",
-                "operationId": "generate_generate_post",
+                "operationId": "generate_prompt_generate__post",
+                "parameters": [
+                    {
+                        "name": "save_to_db",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "Save To Db"
+                        }
+                    }
+                ],
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/PromptRequest"
                             }
                         }
-                    },
-                    "required": true
+                    }
                 },
                 "responses": {
                     "200": {
@@ -34,21 +48,584 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
-                        }
+                        },
+                        "description": "Bad Request"
                     },
                     "500": {
-                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bots/": {
+            "post": {
+                "tags": [
+                    "bots"
+                ],
+                "summary": "Create Bot",
+                "description": "創建新的Bot（不生成提示詞，使用已有的提示詞）",
+                "operationId": "create_bot_bots__post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BotCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "bots"
+                ],
+                "summary": "Read Bots",
+                "description": "獲取Bot列表，可以按用戶ID篩選",
+                "operationId": "read_bots_bots__get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "User Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BotResponse"
+                                    },
+                                    "title": "Response Read Bots Bots  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bots/{bot_id}": {
+            "get": {
+                "tags": [
+                    "bots"
+                ],
+                "summary": "Read Bot",
+                "description": "獲取指定Bot的詳細信息",
+                "operationId": "read_bot_bots__bot_id__get",
+                "parameters": [
+                    {
+                        "name": "bot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Bot Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "bots"
+                ],
+                "summary": "Update Bot",
+                "description": "更新Bot信息",
+                "operationId": "update_bot_bots__bot_id__put",
+                "parameters": [
+                    {
+                        "name": "bot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Bot Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BotCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BotResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "bots"
+                ],
+                "summary": "Delete Bot",
+                "description": "刪除Bot",
+                "operationId": "delete_bot_bots__bot_id__delete",
+                "parameters": [
+                    {
+                        "name": "bot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Bot Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Delete Bot Bots  Bot Id  Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/": {
+            "post": {
+                "tags": [
+                    "conversations"
+                ],
+                "summary": "Create Conversation",
+                "description": "創建新對話",
+                "operationId": "create_conversation_conversations__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConversationCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConversationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/{conversation_id}": {
+            "get": {
+                "tags": [
+                    "conversations"
+                ],
+                "summary": "Read Conversation",
+                "description": "獲取對話詳情及其訊息",
+                "operationId": "read_conversation_conversations__conversation_id__get",
+                "parameters": [
+                    {
+                        "name": "conversation_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Conversation Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConversationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "conversations"
+                ],
+                "summary": "Delete Conversation",
+                "description": "刪除對話及其所有訊息",
+                "operationId": "delete_conversation_conversations__conversation_id__delete",
+                "parameters": [
+                    {
+                        "name": "conversation_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Conversation Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Delete Conversation Conversations  Conversation Id  Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/conversations/bot/{bot_id}": {
+            "get": {
+                "tags": [
+                    "conversations"
+                ],
+                "summary": "Read Conversations By Bot",
+                "description": "獲取指定Bot的所有對話",
+                "operationId": "read_conversations_by_bot_conversations_bot__bot_id__get",
+                "parameters": [
+                    {
+                        "name": "bot_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Bot Id"
+                        }
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ConversationResponse"
+                                    },
+                                    "title": "Response Read Conversations By Bot Conversations Bot  Bot Id  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/": {
+            "post": {
+                "tags": [
+                    "chat"
+                ],
+                "summary": "Chat With Bot",
+                "description": "與Bot聊天的API端點",
+                "operationId": "chat_with_bot_chat__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tables": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List Tables",
+                "description": "列出數據庫中的所有表",
+                "operationId": "list_tables_admin_tables_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response List Tables Admin Tables Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tables/{table_name}": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "View Table Data",
+                "description": "檢視指定表的數據",
+                "operationId": "view_table_data_admin_tables__table_name__get",
+                "parameters": [
+                    {
+                        "name": "table_name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Table Name"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response View Table Data Admin Tables  Table Name  Get"
                                 }
                             }
                         }
@@ -66,9 +643,313 @@
                 }
             }
         }
+        
     },
     "components": {
         "schemas": {
+            "BotCreate": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Name"
+                    },
+                    "role": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Role"
+                    },
+                    "goal": {
+                        "type": "string",
+                        "title": "Goal"
+                    },
+                    "object": {
+                        "type": "string",
+                        "title": "Object"
+                    },
+                    "activity": {
+                        "type": "string",
+                        "title": "Activity"
+                    },
+                    "format": {
+                        "type": "string",
+                        "title": "Format"
+                    },
+                    "responsestyle": {
+                        "type": "string",
+                        "title": "Responsestyle"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "description": "AI model to use",
+                        "default": "gpt-4o"
+                    },
+                    "user_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "role",
+                    "goal",
+                    "object",
+                    "activity",
+                    "format",
+                    "responsestyle"
+                ],
+                "title": "BotCreate"
+            },
+            "BotResponse": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Name"
+                    },
+                    "role": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Role"
+                    },
+                    "goal": {
+                        "type": "string",
+                        "title": "Goal"
+                    },
+                    "object": {
+                        "type": "string",
+                        "title": "Object"
+                    },
+                    "activity": {
+                        "type": "string",
+                        "title": "Activity"
+                    },
+                    "format": {
+                        "type": "string",
+                        "title": "Format"
+                    },
+                    "responsestyle": {
+                        "type": "string",
+                        "title": "Responsestyle"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "description": "AI model to use",
+                        "default": "gpt-4o"
+                    },
+                    "user_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "prompt": {
+                        "type": "string",
+                        "title": "Prompt"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "role",
+                    "goal",
+                    "object",
+                    "activity",
+                    "format",
+                    "responsestyle",
+                    "id",
+                    "prompt",
+                    "created_at"
+                ],
+                "title": "BotResponse"
+            },
+            "ChatRequest": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "conversation_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Conversation Id"
+                    },
+                    "bot_id": {
+                        "type": "integer",
+                        "title": "Bot Id"
+                    },
+                    "user_identifier": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Identifier"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "bot_id"
+                ],
+                "title": "ChatRequest"
+            },
+            "ChatResponse": {
+                "properties": {
+                    "reply": {
+                        "type": "string",
+                        "title": "Reply"
+                    },
+                    "conversation_id": {
+                        "type": "integer",
+                        "title": "Conversation Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "reply",
+                    "conversation_id"
+                ],
+                "title": "ChatResponse"
+            },
+            "ConversationCreate": {
+                "properties": {
+                    "user_identifier": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Identifier"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "bot_id": {
+                        "type": "integer",
+                        "title": "Bot Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "bot_id"
+                ],
+                "title": "ConversationCreate"
+            },
+            "ConversationResponse": {
+                "properties": {
+                    "user_identifier": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Identifier"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "bot_id": {
+                        "type": "integer",
+                        "title": "Bot Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "messages": {
+                        "items": {
+                            "$ref": "#/components/schemas/MessageResponse"
+                        },
+                        "type": "array",
+                        "title": "Messages",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "bot_id",
+                    "created_at"
+                ],
+                "title": "ConversationResponse"
+            },
             "ErrorResponse": {
                 "properties": {
                     "error": {
@@ -94,6 +975,35 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "MessageResponse": {
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "is_bot": {
+                        "type": "boolean",
+                        "title": "Is Bot",
+                        "default": false
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "content",
+                    "id",
+                    "created_at"
+                ],
+                "title": "MessageResponse"
             },
             "PromptRequest": {
                 "properties": {
@@ -132,6 +1042,24 @@
                         "title": "Model",
                         "description": "AI model to use (e.g., 'gpt-4o' or 'gemini-2.0-flash')",
                         "default": "gpt-4o"
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "Name",
+                        "description": "Name of the bot"
+                    },
+                    "user_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "User Id"
                     }
                 },
                 "type": "object",
@@ -141,7 +1069,8 @@
                     "object",
                     "activity",
                     "format",
-                    "responsestyle"
+                    "responsestyle",
+                    "name"
                 ],
                 "title": "PromptRequest"
             },
@@ -150,6 +1079,17 @@
                     "reply": {
                         "type": "string",
                         "title": "Reply"
+                    },
+                    "bot_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Bot Id"
                     }
                 },
                 "type": "object",

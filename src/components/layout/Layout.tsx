@@ -10,7 +10,7 @@ export function Layout() {
         <AppSidebar />
         <div className="flex-1 flex flex-col w-full max-w-full overflow-hidden">
           <Header />
-          <main className="flex-1 w-full overflow-y-auto">
+          <main className="flex-1 w-full overflow-y-auto bg-gray-100">
             <Outlet />
           </main>
           {/* <footer className="border-t py-4">

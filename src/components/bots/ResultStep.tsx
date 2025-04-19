@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import FormSection from "@/components/form/FormSection";
 
 interface ResultStepProps {
@@ -15,6 +15,7 @@ interface ResultStepProps {
   onPrevious: () => void;
   onFinish: () => void;
   onCopyToClipboard: (text: string) => void;
+  onRefreshPrompt?: () => void;
   stepIndex: number;
   stepTitle: string;
   stepDescription: string;
@@ -25,6 +26,7 @@ const ResultStep = React.memo(({
   onPrevious,
   onFinish,
   onCopyToClipboard,
+  onRefreshPrompt,
   stepIndex,
   stepTitle,
   stepDescription
@@ -47,14 +49,27 @@ const ResultStep = React.memo(({
           <FormSection>
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-sm font-medium">生成的 AI 助教</h3>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-xs"
-                onClick={() => onCopyToClipboard(formData.generatedPrompt || "")}
-              >
-                複製
-              </Button>
+              <div className="flex gap-2">
+                {onRefreshPrompt && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                    onClick={onRefreshPrompt}
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    重新生成
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs"
+                  onClick={() => onCopyToClipboard(formData.generatedPrompt || "")}
+                >
+                  複製
+                </Button>
+              </div>
             </div>
             <div className="p-4 bg-muted/30 rounded-md whitespace-pre-wrap text-sm min-h-[200px] max-h-[500px] overflow-y-auto border border-border/30">
               {formData.generatedPrompt || "尚未生成內容"}

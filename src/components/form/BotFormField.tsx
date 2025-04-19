@@ -2,12 +2,20 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Info } from "lucide-react";
+import { Info, AlertCircle } from "lucide-react";
 
 // 幫助文本組件
 const HelpText = ({ children }: { children: React.ReactNode }) => (
   <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
     <Info className="h-3.5 w-3.5 text-primary/70" /> 
+    {children}
+  </p>
+);
+
+// 錯誤文本組件
+const ErrorText = ({ children }: { children: React.ReactNode }) => (
+  <p className="flex items-center gap-1.5 text-xs text-destructive mt-2">
+    <AlertCircle className="h-3.5 w-3.5" /> 
     {children}
   </p>
 );
@@ -21,6 +29,7 @@ interface FormFieldProps {
   className?: string;
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 }
 
 // 文本輸入框組件
@@ -31,7 +40,8 @@ export const TextField = React.memo(({
   placeholder,
   className,
   value,
-  onChange
+  onChange,
+  error
 }: FormFieldProps) => {
   // 使用useCallback防止每次渲染創建新的函數
   const handleChange = React.useCallback(
@@ -47,11 +57,11 @@ export const TextField = React.memo(({
       <Input 
         id={id} 
         placeholder={placeholder} 
-        className={className}
+        className={`${className} ${error ? 'border-destructive' : ''}`}
         value={value}
         onChange={handleChange}
       />
-      {helpText && <HelpText>{helpText}</HelpText>}
+      {error ? <ErrorText>{error}</ErrorText> : helpText && <HelpText>{helpText}</HelpText>}
     </div>
   );
 });
@@ -64,7 +74,8 @@ export const TextareaField = React.memo(({
   placeholder,
   className,
   value,
-  onChange
+  onChange,
+  error
 }: FormFieldProps) => {
   // 使用useCallback防止每次渲染創建新的函數
   const handleChange = React.useCallback(
@@ -80,11 +91,11 @@ export const TextareaField = React.memo(({
       <Textarea 
         id={id} 
         placeholder={placeholder} 
-        className={className || "min-h-[80px]"}
+        className={`${className || "min-h-[80px]"} ${error ? 'border-destructive' : ''}`}
         value={value}
         onChange={handleChange}
       />
-      {helpText && <HelpText>{helpText}</HelpText>}
+      {error ? <ErrorText>{error}</ErrorText> : helpText && <HelpText>{helpText}</HelpText>}
     </div>
   );
 });
@@ -101,7 +112,8 @@ export const SelectField = React.memo(({
   className,
   value,
   onChange,
-  options
+  options,
+  error
 }: SelectFieldProps) => {
   // 使用useCallback防止每次渲染創建新的函數
   const handleChange = React.useCallback(
@@ -116,7 +128,7 @@ export const SelectField = React.memo(({
       <Label htmlFor={id} className="text-sm font-medium block">{label}</Label>
       <select 
         id={id} 
-        className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
+        className={`flex h-10 w-full rounded-md border ${error ? 'border-destructive' : 'border-input'} bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`}
         value={value}
         onChange={handleChange}
       >
@@ -126,7 +138,7 @@ export const SelectField = React.memo(({
           </option>
         ))}
       </select>
-      {helpText && <HelpText>{helpText}</HelpText>}
+      {error ? <ErrorText>{error}</ErrorText> : helpText && <HelpText>{helpText}</HelpText>}
     </div>
   );
 });
