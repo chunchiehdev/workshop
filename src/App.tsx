@@ -5,6 +5,7 @@ import { BotsPage } from "@/pages/bots/BotsPage";
 import { CreateBotPage } from "@/pages/bots/CreateBotPage";
 import { EditBotPage } from "@/pages/bots/EditBotPage";
 import { BotChatPage } from "@/pages/bots/BotChatPage";
+import { ScienceQAPage } from "@/pages/science-qa/ScienceQAPage";
 import { TasksPage } from "@/pages/tasks/TasksPage";
 import { RecordsPage } from "@/pages/records/RecordsPage";
 import { ClassesPage } from "@/pages/classes/ClassesPage";
@@ -20,6 +21,7 @@ function App() {
           <Route path="bots/create" element={<CreateBotPage />} />
           <Route path="bots/:botId/edit" element={<EditBotPage />} />
           <Route path="bots/:botId/chat" element={<BotChatPage />} />
+          <Route path="science-qa" element={<ScienceQAPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="records" element={<RecordsPage />} />
           <Route path="classes" element={<ClassesPage />} />

@@ -159,6 +159,9 @@ export function BotsPage() {
     }
   };
 
+  // 確保 bots 是一個數組
+  const botsArray = Array.isArray(bots) ? bots : [];
+
   return (
     <div className="container py-10 px-4 sm:px-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-10">
@@ -181,7 +184,7 @@ export function BotsPage() {
           <p className="mb-3 font-semibold text-lg">發生錯誤，無法載入 Bots</p>
           <p className="text-sm text-red-400">請檢查網絡連接或稍後再試</p>
         </div>
-      ) : bots?.length === 0 ? (
+      ) : botsArray.length === 0 ? (
         <Card className="bg-muted/40 border-dashed border-2 my-8">
           <CardContent className="flex flex-col items-center py-20">
             <p className="text-muted-foreground mb-6 text-lg">您還沒有建立任何 Bot</p>
@@ -196,7 +199,7 @@ export function BotsPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-6">
-          {bots?.map((bot) => (
+          {botsArray.map((bot) => (
             <Card 
               key={bot.id} 
               className="overflow-hidden border hover:border-primary/50 transition-all hover:shadow-md cursor-pointer group"

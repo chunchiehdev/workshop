@@ -7,7 +7,8 @@ import {
   Users, 
   Settings,
   ChevronsUpDown,
-  User
+  User,
+  Brain
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,11 @@ const mainMenuItems = [
     title: "Bot 管理",
     url: "/bots",
     icon: Bot,
+  },
+  {
+    title: "AI 科學問答",
+    url: "/science-qa",
+    icon: Brain,
   },
   {
     title: "學習任務",
